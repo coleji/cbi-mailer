@@ -1,0 +1,35 @@
+{
+  "name": "cbi-mailer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bin/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node bin/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coleji/cbi-mailer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/coleji/cbi-mailer/issues"
+  },
+  "homepage": "https://github.com/coleji/cbi-mailer#readme",
+  "dependencies": {
+    "express": "^4.13.4",
+    "babel-core": "^6.5.2",
+    "babel-loader": "^6.2.1",
+    "babel-plugin-add-module-exports": "^0.1.2",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-plugin-transform-react-display-name": "^6.3.13",
+    "babel-plugin-transform-runtime": "^6.3.13",
+    "babel-polyfill": "^6.3.14",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "babel-preset-stage-0": "^6.3.13",
+    "babel-register": "^6.3.13",
+    "babel-runtime": "^6.3.19"
+  }
+}
