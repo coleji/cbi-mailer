@@ -1,9 +1,4 @@
 import nodemailer from 'nodemailer';
-import ssl from 'ssl-root-cas/latest';
-
-ssl.inject();
-ssl.addFile('/etc/ssl/digicert/DigiCertCA.crt');
-ssl.addFile('/etc/ssl/digicert/TrustedRoot.crt');
 
 export default function() {
 
@@ -12,9 +7,6 @@ export default function() {
       port: 25,
       useTLS: false,
       ignoreTLS: true
-//      auth: {
-//          user: 'donotreply@community-boating-promo.org'  // TODO: pull out into config
-//      }
   };
 
   const transporter = nodemailer.createTransport(smtpConfig);
@@ -27,6 +19,19 @@ export default function() {
      }
   });
 
-  console.log('made it here');
+  var mailData = {
+    from: 'donotreply@community-boating-promo.org',
+    to: '',
+    subject: 'Message title',
+    text: 'Plaintext version of the message',
+    html: 'HTML version of the message'
+  };
 
+  transporter.sendMail(mailData, (err, info) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log('sent!');
+    }
+  })
 };
