@@ -1,48 +1,35 @@
-import Express from 'express';
+import express from 'express';
+import https from 'https';
 import fs from 'fs';
 import bodyParser from 'body-parser';
 //import postProcessor from './post';
 import mailer from './mailer.js';
 
+var app = express();
 
 var httpsOptions = {
   key: fs.readFileSync(''),
   cert: fs.readFileSync('')
 };
 
-var https = express.createServer(httpsOptions);
+https.createServer(httpsOptions, app).listen(443, function () {
+  console.log('https listening on port 443!');
+});
 
-var http = express.createServer();
+app.all('*', function(req, res) {
+  console.log('https: ' + req.url);
+  res.send('hello encrypted!!');
+});
 
-
+// redirect all unencrypted traffic to main website
+var http = express();
 http.all('*', function(req, res) {
-  console.log("HTTP: " + req.url);
-  return res.redirect("https://" + req.headers["host"] + req.url);
+  return res.redirect("http://www.community-boating.org");
 });
-
-http.error(function(error, req, res, next) {
-  return console.log("HTTP error " + error + ", " + req.url);
-});
-
-https.error(function(error, req, res, next) {
-  return console.log("HTTPS error " + error + ", " + req.url);
-});
-
-https.all('*', function(req, res) {
-  console.log("HTTPS: " + req.url);
-  return res.send("Hello, World!");
-});
-
 http.listen(80, function () {
   console.log('http listening on port 80!');
 });
 
-https.listen(443, function () {
-  console.log('https listening on port 443!');
-});
-
-
-/////////////////////////////////////////////////////////
 
 /*
 
