@@ -1,6 +1,11 @@
 import Express from 'express';
 import bodyParser from 'body-parser';
 import postProcessor from './post';
+import mailer from './mailer.js';
+
+mailer();
+
+/*
 
 const app = new Express();
 
@@ -15,4 +20,5 @@ app.listen(80, function () {
   console.log('Example app listening on port 80!');
 });
 
+*/
 // TODO: check for messages in our db leftover from some previous session
