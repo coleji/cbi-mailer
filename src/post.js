@@ -1,3 +1,5 @@
+import mailer from './mailer.js';
+
 const REQUIRED_PARAMS = {
   trackingId,
   toAddr,
@@ -20,11 +22,13 @@ const respondFailure = function() {
 };
 
 export default function(req, res) {
+	/*
   for (var param in REQUIRED_PARAMS) {
     if (!String(req.body.param)) {
 
     }
   }
+*/
 
   // TODO: check message digest
 
