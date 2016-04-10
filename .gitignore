@@ -1,3 +1,6 @@
+# Private config file
+config/private.ini
+
 # Logs
 logs
 *.log

@@ -1,33 +1,8 @@
-import mailer from './mailer.js';
 import md5 from 'md5';
 
-const REQUIRED_PARAMS = [
-  'trackingId',
-  'toAddr',
-  'fromAddr',
-  'replyToAddr',
-  'subject',
-  'plainBody',
-  'checksum'
-];
-
-const OPTIONAL_PARAMS = [
-  'htmlBody',
-  'miscHeaders',
-  'ccAddr',
-  'bccAddr'
-]
-
-const DB_PARAM_TO_NODEMAILER_PARAM = {
-  'toAddr': 'to',
-  'fromAddr': 'from',
-  'subject': 'subject',
-  'plainBody': 'text',
-  'htmlBody': 'html',
-  'ccAddr': 'cc',
-  'bccAddr': 'bcc',
-  'replyToAddr': 'replyTo'
-};
+//import mailer from './mailer.js';
+import postConstants from './post-constants';
+import db from './db';
 
 const respondFailure = function(err, req, res) {
   console.log("bad post!  " + err);
@@ -39,7 +14,7 @@ const respondFailure = function(err, req, res) {
 const verifyChecksum = function(body) {
   let salt = '';
   let paramStrings = [];
-  REQUIRED_PARAMS.forEach(e => {
+  postConstants.REQUIRED_PARAMS.forEach(e => {
     if (e != 'checksum') paramStrings.push(e + '=' + body[e]);
   });
   let checkMe = paramStrings.join('&');
@@ -50,22 +25,30 @@ const verifyChecksum = function(body) {
 };
 
 export default function(req, res) {
-  var missingParams = REQUIRED_PARAMS.filter(e => !req.body[e]);
-
+  // Check that all required params were provided
+  var missingParams = postConstants.REQUIRED_PARAMS.filter(e => !req.body[e]);
   if (missingParams.length > 0) {
     return respondFailure("Missing required params: " + missingParams.join(", "), req, res);
   }
 
+  // Verify checksum
   console.log('received checksum: ' + req.body.checksum);
   if (!verifyChecksum(req.body)) {
     return respondFailure("Bad checksum.", req, res);
   }
 
-  var mailData = {};
-/*
-  REQUIRED_PARAMS.forEach(e => {
+  // construct new data object as a filtered copy of req.body, copying only the params we care about
+  let emailData = {};
+  postConstants.REQUIRED_PARAMS.forEach(e => {
+    emailData[e] = req.body[e];
+  });
+  postConstants.OPTIONAL_PARAMS.forEach(e => {
+    if (req.body[e]) emailData[e] = req.body[e];
+  }); // at this point, for security reasons don't ever use req.body directly again
 
-  });*/
+  // Save to DB
+  db.writeEmailToDatabase(emailData, postConstants)
+
 
   // TODO: check if trackingid is already in either the pending or sent tables
 
