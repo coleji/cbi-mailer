@@ -1,20 +1,19 @@
 import mysql from 'mysql';
 
-function getPool(connectionCredentials) {
-  return mysql.createPool(connectionCredentials);
+var pool;
+
+function init(connectionCredentials) {
+  pool = mysql.createPool(connectionCredentials);
 }
 
 function queryDB(...args) {
-	connection.query(...args);
+  pool.getConnection((err, connection) => {
+    connection.query(...args);
+    connection.release();
+  });
 }
 
 export default {
-  getPool,
+  init,
   queryDB
 };
-
-/*
-connection.query('SELECT 1 + 1 AS solution', function(err, rows, fields) {
-  if (err) throw err;
-  console.log('The solution is: ', rows[0].solution);
-});*/

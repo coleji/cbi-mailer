@@ -10,10 +10,12 @@ import db from './db-controller';
 
 const PRIVATE_CONFIG = ini.parse(fs.readFileSync('./config/private.ini', 'utf-8'));
 
+// create connection pool
+db.init(PRIVATE_CONFIG.database);
+
 let req = {
 	body : PRIVATE_CONFIG.test_email,
 	privateConfig : PRIVATE_CONFIG,
-	dbPool : db.getPool(PRIVATE_CONFIG.database)
 };
 
 let res = {
