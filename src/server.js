@@ -3,9 +3,6 @@ import https from 'https';
 import fs from 'fs';
 import bodyParser from 'body-parser';
 import postProcessor from './post';
-import mailer from './mailer.js';
-
-mailer();
 
 //var app = express();
 /*
@@ -24,7 +21,7 @@ app.all('*', function(req, res) {
 });
 */
 
-/*
+
 // redirect all unencrypted traffic to main website
 var http = express();
 
@@ -41,6 +38,6 @@ http.all('*', function(req, res) {
 
 http.listen(80, function () {
   console.log('http listening on port 80!');
-});*/
+});
 
 // TODO: check for messages in our db leftover from some previous session
