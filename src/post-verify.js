@@ -15,37 +15,48 @@ const verifyChecksum = function(body, salt) {
 };
 
 export default function(req) {
-  // Check that all required params were provided
-  var missingParams = postConstants.REQUIRED_PARAMS.filter(e => !req.body[e]);
-  if (missingParams.length > 0) {
-    return {'err': "Missing required params: " + missingParams.join(", "), 'emailData': null};
-  }
+  return new Promise((validationResolve, validationReject) => {
+    const VALIDATIONS = [
+      new Promise((resolve, reject) => {
+        // Check that all required params were provided
+        var missingParams = postConstants.REQUIRED_PARAMS.filter(e => !req.body[e]);
+        if (missingParams.length > 0) {
+          reject("Missing required params: " + missingParams.join(", "));
+        } else {
+          resolve();
+        }
+      }),
+      new Promise((resolve, reject) => {
+        // Verify checksum
+        if (!verifyChecksum(req.body, req.privateConfig.hash.salt)) {
+          reject("Bad checksum.");
+        } else {
+          resolve();
+        }
+      }),
+      // check trackingId against local db
+      db.checkDoesntExist(req.body.trackingId)
+    ];
 
-  // Verify checksum
-  if (!verifyChecksum(req.body, req.privateConfig.hash.salt)) {
-    return {'err': "Bad checksum.", 'emailData': null };
-  }
-
-
-  // Check if trackingId exists anywhere in the local db
-  let existCheckError;
-  db.checkDoesntExist(req.body.trackingId).then(() => {
-    // we're good
-  }, (existCheckError) => {
-    existCheckError = {'err': "Duplicate", 'emailData': null }
-  })
-  // FIXME: this doesn't work.  The async function has not finished and assigned an obj to this variable by the time this check is made
-  if (existCheckError) return existCheckError;
-
-
-  // construct new data object as a filtered copy of req.body, copying only the params we care about
-  let emailData = {};
-  postConstants.REQUIRED_PARAMS.forEach(e => {
-    emailData[e] = req.body[e];
+    let validation = Promise.all(VALIDATIONS).then(() => {
+      return;
+    }, (err) => {
+      return err;
+    }).then((err) => {
+      if (err) {
+        console.log("no go: " + err);
+        validationReject(err);
+      } else {
+        // construct new data object as a filtered copy of req.body, copying only the params we care about
+        let emailData = {};
+        postConstants.REQUIRED_PARAMS.forEach(e => {
+          emailData[e] = req.body[e];
+        });
+        postConstants.OPTIONAL_PARAMS.forEach(e => {
+          if (req.body[e]) emailData[e] = req.body[e];
+        });
+        validationResolve();
+      }
+    });
   });
-  postConstants.OPTIONAL_PARAMS.forEach(e => {
-    if (req.body[e]) emailData[e] = req.body[e];
-  });
-
-  return {'err': null, 'emailData': emailData}
 }
