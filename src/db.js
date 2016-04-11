@@ -4,7 +4,7 @@ const checkDoesntExist = function(trackingId) {
   // TODO: figure out how to do this correctly
   const checks = [
     () => {
-      db.queryDB('SELECT 1 FROM emails_pending WHERE trackingId = ? ', trackingId, (error, results, fields) => {
+      db.queryDB('SELECT 1 FROM emails_pending WHERE trackingId = ? ', trackingId, (err, results, fields) => {
         if (err) console.log(err);
         return (results.length > 1);
       });
@@ -14,7 +14,7 @@ const checkDoesntExist = function(trackingId) {
     if (e()) resolve();
     else reject();
   })));
-  console.log(p)
+  return p;
 };
 
 const writeEmailToDatabase = function(emailData, constants) {

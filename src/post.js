@@ -15,7 +15,11 @@ const respondFailure = function(err, req, res) {
 
 
 export default function(req, res) {
-  postVerify(req);
+  var { err, emailData } = postVerify(req);
+  if (err) {
+    respondFailure(err, req, res);
+    return;
+  }
 
   // Save to DB
   db.writeEmailToDatabase(emailData, postConstants)
