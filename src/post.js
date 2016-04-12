@@ -14,16 +14,17 @@ const respondFailure = function(err, req, res) {
 
 export default function(req, res) {
   var promise = postVerify(req).then(() => {
-    console.log("validation passed")
+    console.log("validation passed");
+    db.writeEmailToDatabase(emailData, postConstants)
   }, (error) => {
-    console.log("failed validation")
+    respondFailure(err, req, res);
+  }).then(() => {
+
+  }, () => {
+
   });
 
 
-  // Save to DB
-//  db.writeEmailToDatabase(emailData, postConstants)
-
-  // TODO: save to db
 
   // TODO: send
 
