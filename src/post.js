@@ -13,15 +13,16 @@ const respondFailure = function(err, req, res) {
 };
 
 export default function(req, res) {
-  var promise = postVerify(req).then(() => {
+  var promise = postVerify(req).then(() => {  // resolve vlaidations
     console.log("validation passed");
     db.writeEmailToDatabase(emailData, postConstants)
-  }, (error) => {
+  }, (error) => { // reject validations
     respondFailure(err, req, res);
-  }).then(() => {
-
-  }, () => {
-
+  }).then(() => { // resolve write to db
+    res.send(0);
+    // TODO: queue for sending
+  }, () => { // reject write to db
+    respondFailure(err, req, res);
   });
 
 
