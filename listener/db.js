@@ -1,4 +1,4 @@
-import db from './db-controller';
+import db from '../db/init';
 
 const checkDoesntExist = function(trackingId) {
   // TODO: figure out how to do this correctly

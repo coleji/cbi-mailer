@@ -16,4 +16,4 @@ console.log("initializing babel...");
 
 require('babel-register')(config);
 
-require('../src/server');
+require('../listener/server');

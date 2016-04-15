@@ -6,7 +6,7 @@ import bodyParser from 'body-parser';
 import ini from 'ini';
 
 import postProcessor from './post';
-import db from './db-controller';
+import db from '../db/init';
 
 const PRIVATE_CONFIG = ini.parse(fs.readFileSync('./config/private.ini', 'utf-8'));
 

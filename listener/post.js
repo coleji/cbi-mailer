@@ -5,24 +5,34 @@ import postConstants from './post-constants';
 import db from './db';
 import postVerify from './post-verify';
 
+const RESPONSES = {
+  OK : '0',
+  GARBLED : '1',
+  DUPLICATE : '2',
+  DB_FAILURE : '3',
+  SEND_FAIL : '4'
+};
+
 const respondFailure = function(err, req, res) {
-  console.log("bad post!  " + err);
   res.send('fail!!');
   // TODO: write to log file
   // TODO: repond with failure code
 };
 
 export default function(req, res) {
-  var promise = postVerify(req).then(() => {  // resolve vlaidations
+  var promise = postVerify(req).then(() => {
+    // resolve validations
     console.log("validation passed");
     db.writeEmailToDatabase(emailData, postConstants)
-  }, (error) => { // reject validations
-    respondFailure(err, req, res);
-  }).then(() => { // resolve write to db
-    res.send(0);
+  }, (error) => {
+    // reject validations
+    // pass rejected validation
+  }).then(() => {
+    // resolve write to db
     // TODO: queue for sending
-  }, () => { // reject write to db
-    respondFailure(err, req, res);
+  }, () => {
+    // reject write to db
+    respondFailure(err, req, res); // either the error from the validations, or from the db save
   });
 
 
