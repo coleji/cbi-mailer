@@ -14,6 +14,7 @@ const RESPONSES = {
 };
 
 const respondFailure = function(err, req, res) {
+  console.log('fail')
   res.send('fail!!');
   // TODO: write to log file
   // TODO: repond with failure code
@@ -23,16 +24,18 @@ export default function(req, res) {
   var promise = postVerify(req).then(() => {
     // resolve validations
     console.log("validation passed");
-    db.writeEmailToDatabase(emailData, postConstants)
+    return db.writeEmailToDatabase(emailData, postConstants);
   }, (error) => {
     // reject validations
-    // pass rejected validation
+    return Promise.reject();
   }).then(() => {
+    console.log("db save resolved");
     // resolve write to db
     // TODO: queue for sending
   }, () => {
+    console.log('db savee rejected');
     // reject write to db
-    respondFailure(err, req, res); // either the error from the validations, or from the db save
+    respondFailure("err", req, res); // either the error from the validations, or from the db save
   });
 
 

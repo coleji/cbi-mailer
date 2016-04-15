@@ -18,10 +18,19 @@ const checkDoesntExist = function(trackingId) {
 };
 
 const writeEmailToDatabase = function(emailData, constants) {
-  db.queryDB('INSERT INTO emails_pending SET ?', emailData, (err, result) => {
-    if (err) console.log(err);
+  console.log('here we go');
+  return new Promise((resolve, reject) => {
+    db.queryDB('INSERT INTO emails_pending SET ?', emailData, (err, result) => {
+      console.log('db callback')
+      if (err){
+        console.log(err);
+        reject();
+      } else {
+        resolve();
+      }
+    });
+    console.log('made it');
   });
-  console.log('made it');
 }
 
 export default {

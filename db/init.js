@@ -7,7 +7,9 @@ function init(connectionCredentials) {
 }
 
 function queryDB(...args) {
+  console.log('about to query');
   pool.getConnection((err, connection) => {
+    console.log('got a connection')
     connection.query(...args);
     connection.release();
   });
