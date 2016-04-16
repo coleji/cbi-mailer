@@ -1,4 +1,5 @@
 import md5 from 'md5';
+import request from 'request';
 
 //import mailer from './mailer.js';
 import postConstants from './post-constants';
@@ -20,7 +21,13 @@ export default function(req, res) {
     return db.writeEmailToDatabase(emailData);
   }).then(() => {
     // ✔
-    // TODO: queue for sending
+    request('http://localhost:'+ req.privateConfig.spooler.port + '/poke', function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        console.log('?' + body)
+      } else {
+        console.log('??' + error + "??" + response + '???' + body);
+      }
+    });
     res.send(postConstants.RESPONSES.OK);
   }, (rejectObject) => {
     // ✘
