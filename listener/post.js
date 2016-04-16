@@ -14,28 +14,24 @@ const RESPONSES = {
 };
 
 const respondFailure = function(err, req, res) {
-  console.log('fail')
+  console.log(err)
   res.send('fail!!');
   // TODO: write to log file
   // TODO: repond with failure code
 };
 
 export default function(req, res) {
-  var promise = postVerify(req).then(() => {
+  var promise = postVerify(req).then((emailData) => {
     // resolve validations
-    console.log("!validation passed");
-    // After this line the promise immediate rejects. wtf
-    var p = db.writeEmailToDatabase(emailData, postConstants);
+    var p = db.writeEmailToDatabase(emailData);
     console.log(p instanceof Promise);
     return p;
   }).then(() => {
-    console.log("db save resolved");
     // resolve write to db
     // TODO: queue for sending
-  }, () => {
-    console.log('db savee rejected');
+  }, (err) => {
     // reject write to db
-    respondFailure("err", req, res); // either the error from the validations, or from the db save
+    respondFailure(err, req, res); // either the error from the validations, or from the db save
   });
 
 

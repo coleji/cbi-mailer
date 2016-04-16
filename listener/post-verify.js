@@ -5,6 +5,7 @@ import postConstants from './post-constants';
 import db from './db';
 
 const verifyChecksum = function(body, salt) {
+  // construct a GET-style string of all the parameters and md5 it (with secret salt from ini), compare against provided checksum
   let paramStrings = [];
   postConstants.REQUIRED_PARAMS.forEach(e => {
     if (e != 'checksum') paramStrings.push(e + '=' + body[e]);
@@ -16,11 +17,11 @@ const verifyChecksum = function(body, salt) {
 
 export default function(req) {
   return new Promise((validationResolve, validationReject) => {
+    // List of all validations to check in the form of a promise.
     const VALIDATIONS = [
 
       // Check that all required params were provided
       new Promise((resolve, reject) => {
-        console.log('checking required params')
         var missingParams = postConstants.REQUIRED_PARAMS.filter(e => !req.body[e]);
         if (missingParams.length > 0) {
           reject("Missing required params: " + missingParams.join(", "));
@@ -31,7 +32,6 @@ export default function(req) {
 
       // Verify checksum
       new Promise((resolve, reject) => {
-        console.log('checking checksum')
         if (!verifyChecksum(req.body, req.privateConfig.hash.salt)) {
           reject("Bad checksum.");
         } else {
@@ -39,31 +39,26 @@ export default function(req) {
         }
       }),
 
-      // check trackingId against local db
+      // check trackingId against local db (returns a promise)
       db.checkDoesntExist(req.body.trackingId)
     ];
 
-    let validation = Promise.all(VALIDATIONS).then(() => {
-      console.log("validations look good")
-      return;
+    Promise.all(VALIDATIONS).then(() => {
+      // construct new data object as a filtered copy of req.body, copying only the params we care about
+      let emailData = {};
+      postConstants.REQUIRED_PARAMS.forEach(e => {
+        emailData[e] = req.body[e];
+      });
+      postConstants.OPTIONAL_PARAMS.forEach(e => {
+        if (req.body[e]) emailData[e] = req.body[e];
+      });
+
+      // return all validations passed, hand off email data for storage and sending
+      validationResolve(emailData);
     }, (err) => {
-      console.log("validations not so good")
-      return err;
-    }).then((err) => {
-      if (err) {
-        console.log("no go: " + err);
-        validationReject(err);
-      } else {
-        // construct new data object as a filtered copy of req.body, copying only the params we care about
-        let emailData = {};
-        postConstants.REQUIRED_PARAMS.forEach(e => {
-          emailData[e] = req.body[e];
-        });
-        postConstants.OPTIONAL_PARAMS.forEach(e => {
-          if (req.body[e]) emailData[e] = req.body[e];
-        });
-        validationResolve();
-      }
+      // A validation did not pass
+      validationReject(err);
     });
+
   });
 }
