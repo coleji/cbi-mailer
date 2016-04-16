@@ -26,8 +26,19 @@ const DB_PARAM_TO_NODEMAILER_PARAM = {
   'replyToAddr': 'replyTo'
 };
 
+const RESPONSES = {
+  OK : '0',
+  GARBLED : '1',
+  DUPLICATE : '2',
+  DB_FAILURE : '3',
+  SEND_FAIL : '4',
+  OTHER : '5'
+};
+
+
 export default {
   REQUIRED_PARAMS,
   OPTIONAL_PARAMS,
-  DB_PARAM_TO_NODEMAILER_PARAM
+  DB_PARAM_TO_NODEMAILER_PARAM,
+  RESPONSES
 }

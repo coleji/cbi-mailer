@@ -19,12 +19,14 @@ export default function(req) {
   return new Promise((validationResolve, validationReject) => {
     // List of all validations to check in the form of a promise.
     const VALIDATIONS = [
-
       // Check that all required params were provided
       new Promise((resolve, reject) => {
         var missingParams = postConstants.REQUIRED_PARAMS.filter(e => !req.body[e]);
         if (missingParams.length > 0) {
-          reject("Missing required params: " + missingParams.join(", "));
+          reject({
+            reason: "Missing required params: " + missingParams.join(", "),
+            responseCode: postConstants.RESPONSES.GARBLED
+          });
         } else {
           resolve();
         }
@@ -33,7 +35,10 @@ export default function(req) {
       // Verify checksum
       new Promise((resolve, reject) => {
         if (!verifyChecksum(req.body, req.privateConfig.hash.salt)) {
-          reject("Bad checksum.");
+          reject({
+            reason: "Bad checksum.",
+            responseCode : postConstants.RESPONSES.GARBLED
+          });
         } else {
           resolve();
         }
@@ -43,7 +48,9 @@ export default function(req) {
       db.checkDoesntExist(req.body.trackingId)
     ];
 
+    // Check all validation promises
     Promise.all(VALIDATIONS).then(() => {
+      // ✔
       // construct new data object as a filtered copy of req.body, copying only the params we care about
       let emailData = {};
       postConstants.REQUIRED_PARAMS.forEach(e => {
@@ -55,9 +62,9 @@ export default function(req) {
 
       // return all validations passed, hand off email data for storage and sending
       validationResolve(emailData);
-    }, (err) => {
-      // A validation did not pass
-      validationReject(err);
+    }, (rejectObject) => {
+      // ✘
+      validationReject(rejectObject);
     });
 
   });

@@ -9,6 +9,7 @@ function init(connectionCredentials) {
 
 function queryDB(...args) {
   return (new Promise((resolve, reject) => {
+    if (!pool) reject("database connection pool was never initialized");
     pool.getConnection((err, connection) => {
       connection.query(...args, (err, results, fields) => {
         if (err) {
