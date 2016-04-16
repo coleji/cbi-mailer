@@ -23,9 +23,7 @@ const respondFailure = function(err, req, res) {
 export default function(req, res) {
   var promise = postVerify(req).then((emailData) => {
     // resolve validations
-    var p = db.writeEmailToDatabase(emailData);
-    console.log(p instanceof Promise);
-    return p;
+    return db.writeEmailToDatabase(emailData);
   }).then(() => {
     // resolve write to db
     // TODO: queue for sending

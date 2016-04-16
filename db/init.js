@@ -2,7 +2,7 @@ import mysql from 'mysql';
 
 var pool;
 
-// TODO: Do we really need a pool for a single thread?  
+// TODO: Do we really need a pool for a single thread?
 function init(connectionCredentials) {
   pool = mysql.createPool(connectionCredentials);
 }

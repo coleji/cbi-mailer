@@ -9,7 +9,7 @@ const checkDoesntExist = function(trackingId) {
         if (resultObject.results.length == 0) {
           resolve();
         } else {
-          reject();
+          reject("trackingid exists in emailsPending");
         }
       });
     })
