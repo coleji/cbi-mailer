@@ -23,11 +23,11 @@ const respondFailure = function(err, req, res) {
 export default function(req, res) {
   var promise = postVerify(req).then(() => {
     // resolve validations
-    console.log("validation passed");
-    return db.writeEmailToDatabase(emailData, postConstants);
-  }, (error) => {
-    // reject validations
-    return Promise.reject();
+    console.log("!validation passed");
+    // After this line the promise immediate rejects. wtf
+    var p = db.writeEmailToDatabase(emailData, postConstants);
+    console.log(p instanceof Promise);
+    return p;
   }).then(() => {
     console.log("db save resolved");
     // resolve write to db

@@ -17,8 +17,10 @@ const verifyChecksum = function(body, salt) {
 export default function(req) {
   return new Promise((validationResolve, validationReject) => {
     const VALIDATIONS = [
+
+      // Check that all required params were provided
       new Promise((resolve, reject) => {
-        // Check that all required params were provided
+        console.log('checking required params')
         var missingParams = postConstants.REQUIRED_PARAMS.filter(e => !req.body[e]);
         if (missingParams.length > 0) {
           reject("Missing required params: " + missingParams.join(", "));
@@ -26,21 +28,26 @@ export default function(req) {
           resolve();
         }
       }),
+
+      // Verify checksum
       new Promise((resolve, reject) => {
-        // Verify checksum
+        console.log('checking checksum')
         if (!verifyChecksum(req.body, req.privateConfig.hash.salt)) {
           reject("Bad checksum.");
         } else {
           resolve();
         }
       }),
+
       // check trackingId against local db
       db.checkDoesntExist(req.body.trackingId)
     ];
 
     let validation = Promise.all(VALIDATIONS).then(() => {
+      console.log("validations look good")
       return;
     }, (err) => {
+      console.log("validations not so good")
       return err;
     }).then((err) => {
       if (err) {
