@@ -22,6 +22,13 @@ const SMTP_CONFIG = {
 	ignoreTLS: true
 };
 
+const ERRORS = {
+   NO_WORK_TO_DO : '0',
+   FAILURE_TO_RETRIEVE_WORK : '1',
+   FAILURE_TO_SEND : '2',
+   FAILURE_TO_PURGE : '3'
+}
+
 
 export default {
   DB_PARAM_TO_NODEMAILER_PARAM,

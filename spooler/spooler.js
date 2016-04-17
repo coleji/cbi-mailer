@@ -1,5 +1,6 @@
 import db from '../db/init';
 import mailer from './mailer';
+import {ERRORS as mailerErrors} from './mailer-constants';
 
 var spooler;
 
@@ -9,14 +10,9 @@ function EmailSpooler() {
   // true when doing stuff, false when waiting.  NOOP any poke that happens when active
   var active = false;
 
-  this.REJECTION_REASONS = {
-    NO_DATA : '0',
-    DB_FAILURE : '1'
-  }
-
   // Check db for any messages to send.
   // Return resovled promise with message data, rejected promise if no work to do (or db failure).
-  this.getMessageToSend = function() {
+  function getMessageToSend() {
     console.log('running getMessageToSend()')
     return new Promise((resolve, reject) => {
       console.log('inside promise')
@@ -29,19 +25,66 @@ function EmailSpooler() {
           resolve(resultObject.results[0]);
         } else {
           console.log('no data')
-          reject(this.REJECTION_REASONS.NO_DATA);
+          reject(mailerErrors.NO_WORK_TO_DO);
         }
       }, () => {
         // ✘  DB failure
         console.log('db failure')
-        reject(this.REJECTION_REASONS.DB_FAILURE);
+        reject(mailerErrors.FAILURE_TO_RETRIEVE_WORK);
       });
     });
   };
 
-  const sendMessage = function(rowData) {
-    mailer(rowData);
+  function purgeEmailFromDatabase(trackingId) {
+
   }
+
+  function spool() {
+    active = true;
+    getMessageToSend().then((rowData) => {
+      // ✔ found an email to send
+      console.log('found an email to send')
+      return mailer.sendMail(rowData);
+    }).then((trackingId) => {
+      // ✔ successfully sent
+      console.log('successfully sent')
+      return purgeEmailFromDatabase(trackingId);
+    }).then(() => {
+      // ✔ successfully purged from db
+      console.log('successfully purged form db')
+    }).catch(() => {
+      // ✘ one of the above three failed
+    });
+
+    /*
+
+    , (reason) => {
+      console.log('spool() didnt find any work to do')
+      // either no data, or db failure
+      if (reason == this.REJECTION_REASONS.DB_FAILURE) {
+        // log/alert admin/do something
+      }
+      active = false;
+    }
+
+    (err) => {
+      // ✘  send mail failure
+      console.log('mail send failure: ' + err);
+      // TODO: HACF, notify admin
+      return Promise.reject();
+    }
+
+    */
+  }
+
+  this.poke = function() {
+    console.log('poking')
+    // if already doing stuff, NOOP
+    if (!active) {
+      console.log('spooler was inactive, spinning up')
+      spool();
+    }
+  };
 };
 
 // EmailSpooler is a singleton class

@@ -2,37 +2,29 @@ import fs from 'fs';
 import express from 'express';
 import ini from 'ini';
 
-import db from '../db/init';
+import {init as dbInit} from '../db/init';
 import getSpooler from './spooler';
-import mailer from './mailer';
+import {init as mailerInit} from './mailer';
 
 const PRIVATE_CONFIG = ini.parse(fs.readFileSync('./config/private.ini', 'utf-8'));
 
 // create connection pool
-db.init(PRIVATE_CONFIG.database);
+dbInit(PRIVATE_CONFIG.database);
 
-console.log('start mailer init');
 // init mailer
-mailer.init(PRIVATE_CONFIG.DKIM);
+mailerInit(PRIVATE_CONFIG.DKIM);
 
 var app = express();
-
 var spooler = getSpooler();
+// on startup, check for any messages in the db from last time
+spooler.poke();
 
 app.get('/poke', (req, res) => {
-  spooler.getMessageToSend().then((rowData) => {
-    console.log('got db row, attempting to mail')
-    return mailer.sendMail(rowData, PRIVATE_CONFIG.server.domain);
-  }).then(() => {
-    console.log('sending success message')
-    res.status(200).send('Success');
-  }, (err) => {
-    console.log('something fucked: ' + err)
-  });
+  console.log('received poke')
+  spooler.poke();
+  res.status(200).send('0');
 });
 
 app.listen(PRIVATE_CONFIG.spooler.port, function () {
   console.log('spooler server listening on port ' + PRIVATE_CONFIG.spooler.port);
 });
-
-// TODO: check for messages in our db leftover from some previous session

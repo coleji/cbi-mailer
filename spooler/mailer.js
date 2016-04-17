@@ -25,7 +25,6 @@ const init = function(dkimConfig) {
       console.log("mailer ready to receive mails");
      }
   });
-
 };
 
 const sendMail = function(rowData, domain) {
