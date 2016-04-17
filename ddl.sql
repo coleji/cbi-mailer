@@ -25,6 +25,7 @@ DROP TABLE IF EXISTS `emails_pending`;
 CREATE TABLE `emails_pending` (
   `trackingId` int(11) NOT NULL AUTO_INCREMENT,
   `toAddr` varchar(4000) DEFAULT NULL,
+  `rcptTo` varchar(4000) DEFAULT NULL,
   `fromAddr` varchar(200) DEFAULT NULL,
   `replyToAddr` varchar(200) DEFAULT NULL,
   `subject` varchar(1000) DEFAULT NULL,
@@ -58,4 +59,3 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2016-04-12 22:54:16
-

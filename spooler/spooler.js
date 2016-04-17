@@ -1,5 +1,5 @@
 import db from '../db/init';
-// import mailer from './mailer';
+import mailer from './mailer';
 
 var spooler;
 
@@ -26,7 +26,7 @@ function EmailSpooler() {
         if (resultObject.results.length == 1) {
           console.log('found a row to process')
           console.log(resultObject.results[0])
-          resolve(resultObject);
+          resolve(resultObject.results[0]);
         } else {
           console.log('no data')
           reject(this.REJECTION_REASONS.NO_DATA);
@@ -40,7 +40,7 @@ function EmailSpooler() {
   };
 
   const sendMessage = function(rowData) {
-
+    mailer(rowData);
   }
 };
 

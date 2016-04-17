@@ -12,6 +12,7 @@ const verifyChecksum = function(body, salt) {
   });
   let checkMe = paramStrings.join('&');
   let checksum = md5(salt + checkMe + salt).toUpperCase();
+  console.log('expected ' + checksum)
   return (checksum == body.checksum);
 };
 

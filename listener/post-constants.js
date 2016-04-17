@@ -1,5 +1,6 @@
 const REQUIRED_PARAMS = [
   'trackingId',
+  'rcptTo',
   'toAddr',
   'fromAddr',
   'replyToAddr',
@@ -15,17 +16,6 @@ const OPTIONAL_PARAMS = [
   'bccAddr'
 ]
 
-const DB_PARAM_TO_NODEMAILER_PARAM = {
-  'toAddr': 'to',
-  'fromAddr': 'from',
-  'subject': 'subject',
-  'plainBody': 'text',
-  'htmlBody': 'html',
-  'ccAddr': 'cc',
-  'bccAddr': 'bcc',
-  'replyToAddr': 'replyTo'
-};
-
 const RESPONSES = {
   OK : '0',
   GARBLED : '1',
@@ -39,6 +29,5 @@ const RESPONSES = {
 export default {
   REQUIRED_PARAMS,
   OPTIONAL_PARAMS,
-  DB_PARAM_TO_NODEMAILER_PARAM,
   RESPONSES
 }
