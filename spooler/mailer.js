@@ -2,32 +2,34 @@ import nodemailer from 'nodemailer';
 import fs from 'fs';
 import { signer } from 'nodemailer-dkim';
 
-import mailerConstants from './mailer-constants';
+import {SMTP_CONFIG, DB_FIELDS_TO_IGNORE, DB_PARAM_TO_NODEMAILER_PARAM, ERRORS} from './mailer-constants';
 
 var transporter;
 
-const init = function(dkimConfig) {
+export function init(dkimConfig) {
+	return new Promise((resolve, reject) => {
+		transporter = nodemailer.createTransport(SMTP_CONFIG);
 
-	transporter = nodemailer.createTransport(mailerConstants.SMTP_CONFIG);
+		let dkimOptions = {
+			domainName: dkimConfig.domainName,
+			keySelector: dkimConfig.keySelector,
+			privateKey: fs.readFileSync(dkimConfig.privateKeyFile, 'utf-8')
+		};
 
-	let dkimOptions = {
-		domainName: dkimConfig.domainName,
-		keySelector: dkimConfig.keySelector,
-		privateKey: fs.readFileSync(dkimConfig.privateKeyFile, 'utf-8')
-	};
+		transporter.use('stream', signer(dkimOptions))
 
-	transporter.use('stream', signer(dkimOptions))
-
-	transporter.verify(function(err, success) {
-		if (err) {
-			console.log("mailer init failed: " + err)
-		} else {
-			console.log("mailer ready to receive mails");
-		}
+		transporter.verify(function(err, success) {
+			if (err) {
+				reject(err);
+			} else {
+				console.log("mailer ready to receive mails");
+				resolve();
+			}
+		});
 	});
-};
+}
 
-const sendMail = function(rowData, domain) {
+export function sendMail(rowData, domain) {
 	return new Promise((resolve, reject) => {
 		let mailData = {
 			envelope: {
@@ -36,10 +38,10 @@ const sendMail = function(rowData, domain) {
 			}
 		};
 		for (let p in rowData) {
-			if (!!mailerConstants.DB_FIELDS_TO_IGNORE[p]) {
+			if (!!DB_FIELDS_TO_IGNORE[p]) {
 				continue;
-			} else if (!!mailerConstants.DB_PARAM_TO_NODEMAILER_PARAM[p]) {
-				mailData[mailerConstants.DB_PARAM_TO_NODEMAILER_PARAM[p]] = rowData[p];
+			} else if (!!DB_PARAM_TO_NODEMAILER_PARAM[p]) {
+				mailData[DB_PARAM_TO_NODEMAILER_PARAM[p]] = rowData[p];
 			} else if (p == 'miscHeaders') {
 				// add the headers
 			} else {
@@ -51,16 +53,14 @@ const sendMail = function(rowData, domain) {
 		transporter.sendMail(mailData, (err, info) => {
 			if (err) {
 				console.log('send fail')
-				reject(err);
+				reject({
+					code: ERRORS.FAILURE_TO_SEND,
+					reason: err
+				});
 			} else {
 				console.log('send success!')
-				resolve();
+				resolve(rowData.trackingId);
 			}
 		})
 	});
 };
-
-export default {
-	init,
-	sendMail
-}

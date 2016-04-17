@@ -6,12 +6,12 @@ import bodyParser from 'body-parser';
 import ini from 'ini';
 
 import postProcessor from './post';
-import db from '../db/init';
+import {init as initDB} from '../db/init';
 
 const PRIVATE_CONFIG = ini.parse(fs.readFileSync('./config/private.ini', 'utf-8'));
 
 // create connection pool
-db.init(PRIVATE_CONFIG.database);
+initDB(PRIVATE_CONFIG.database);
 
 let req = {
 	body: PRIVATE_CONFIG.test_email,

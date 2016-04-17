@@ -1,11 +1,11 @@
-import db from '../db/init';
+import {queryDB} from '../db/init';
 import postConstants from './post-constants';
 
 const checkDoesntExist = function(trackingId) {
 	const checks = [
 		// For now there's only one table to check.  Will be adding more
 		new Promise((resolve, reject) => {
-			db.queryDB('SELECT 1 FROM emails_pending WHERE trackingId = ? ', trackingId)
+			queryDB('SELECT 1 FROM emails_pending WHERE trackingId = ? ', trackingId)
 			.then((resultObject) => {
 				// ✔
 				if (resultObject.results.length == 0) {
@@ -29,7 +29,7 @@ const checkDoesntExist = function(trackingId) {
 };
 
 const writeEmailToDatabase = function(emailData) {
-	return db.queryDB('INSERT INTO emails_pending SET ?', emailData)
+	return queryDB('INSERT INTO emails_pending SET ?', emailData)
 	.catch((err) => {
 		return Promise.reject({
 			reason: err,

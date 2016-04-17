@@ -1,5 +1,5 @@
-import db from '../db/init';
-import mailer from './mailer';
+import {queryDB} from '../db/init';
+import {sendMail} from './mailer';
 import { ERRORS as mailerErrors } from './mailer-constants';
 
 var spooler;
@@ -9,14 +9,15 @@ function EmailSpooler() {
 
 	// true when doing stuff, false when waiting.  NOOP any poke that happens when active
 	var active = false;
+	// Set to true if the application needs to halt and not attempt to send any more emails
+	var panicHalt = false;
 
 	// Check db for any messages to send.
 	// Return resovled promise with message data, rejected promise if no work to do (or db failure).
 	function getMessageToSend() {
 		console.log('running getMessageToSend()')
 		return new Promise((resolve, reject) => {
-			console.log('inside promise')
-			db.queryDB('SELECT * FROM emails_pending limit 1')
+			queryDB('SELECT * FROM emails_pending limit 1')
 			.then((resultObject) => {
 				// ✔ query executed successfully
 				if (resultObject.results.length == 1) {
@@ -25,26 +26,51 @@ function EmailSpooler() {
 					resolve(resultObject.results[0]);
 				} else {
 					console.log('no data')
-					reject(mailerErrors.NO_WORK_TO_DO);
+					reject({code: mailerErrors.NO_WORK_TO_DO});
 				}
-			}, () => {
+			}, (err) => {
 				// ✘  DB failure
 				console.log('db failure')
-				reject(mailerErrors.FAILURE_TO_RETRIEVE_WORK);
+				reject({
+					code: mailerErrors.FAILURE_TO_RETRIEVE_WORK,
+					reason: err
+				});
 			});
 		});
 	};
 
+	// Return resolved promise if data was successfully purged,
+	// rejected promise if unable to purge.  That is the worst possible failure type for this app
 	function purgeEmailFromDatabase(trackingId) {
-
+		console.log('purging from db: ' + trackingId)
+		return new Promise((resolve, reject) => {
+			queryDB('DELETE FROM emails_pending where trackingId = ?', trackingId)
+			.then(() => {
+				console.log('iPurged')
+				resolve();
+			}, (err) => {
+				console.log('purge fail')
+				reject({
+					code: mailerErrors.FAILURE_TO_PURGE,
+					reason: err
+				});
+			});
+		});
 	}
 
+	// "main"
+	// get an email to send, send it, purge its data from db
+	// log/notify if anything goes wrong
+	// continually recurse until all emails are sent, then wait to be poked by the listener thread
 	function spool() {
+		console.log('spool()')
 		active = true;
 		getMessageToSend().then((rowData) => {
 			// ✔ found an email to send
 			console.log('found an email to send')
-			return mailer.sendMail(rowData);
+			if (panicHalt) return Promise.reject({code: mailerErrors.RESPONDING_TO_HALT})
+
+			return sendMail(rowData);
 		}).then((trackingId) => {
 			// ✔ successfully sent
 			console.log('successfully sent')
@@ -52,29 +78,38 @@ function EmailSpooler() {
 		}).then(() => {
 			// ✔ successfully purged from db
 			console.log('successfully purged form db')
-		}).catch(() => {
+		}).catch((rejectObject) => {
+			console.log('spool() caught something')
 			// ✘ one of the above three failed
+			if (rejectObject.code) {
+				switch (rejectObject.code) {
+				case mailerErrors.FAILURE_TO_PURGE:
+					// this one is extremely bad.  The entire application needs to stop everything right now,
+					// or risk sending the same email over and over again
+					console.log('panic halting');
+					panicHalt = true;
+					// don't break
+				case mailerErrors.FAILURE_TO_RETRIEVE_WORK:
+				case mailerErrors.FAILURE_TO_SEND:
+					// TODO: some kind of log/notify
+					console.log("SPOOL ERROR: " + rejectObject.code + ":   " + rejectObject.reason);
+					// don't break
+				case mailerErrors.NO_WORK_TO_DO:
+				case mailerErrors.RESPONDING_TO_HALT:
+					console.log('spooler spinning down')
+					active = false;
+					break;
+				default:
+					console.log('dunno what i just caught')
+					active = false;
+					// TODO: log/notify about an unknown error type
+				}
+			} else {
+				console.log("Unknown error: " + rejectObject);
+				panicHalt = true;
+				active = false;
+			}
 		});
-
-		/*
-
-		, (reason) => {
-		  console.log('spool() didnt find any work to do')
-		  // either no data, or db failure
-		  if (reason == this.REJECTION_REASONS.DB_FAILURE) {
-		    // log/alert admin/do something
-		  }
-		  active = false;
-		}
-
-		(err) => {
-		  // ✘  send mail failure
-		  console.log('mail send failure: ' + err);
-		  // TODO: HACF, notify admin
-		  return Promise.reject();
-		}
-
-		*/
 	}
 
 	this.poke = function() {
