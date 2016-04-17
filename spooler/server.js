@@ -2,9 +2,13 @@ import fs from 'fs';
 import express from 'express';
 import ini from 'ini';
 
-import {init as dbInit} from '../db/init';
+import {
+	init as dbInit
+} from '../db/init';
 import getSpooler from './spooler';
-import {init as mailerInit} from './mailer';
+import {
+	init as mailerInit
+} from './mailer';
 
 const PRIVATE_CONFIG = ini.parse(fs.readFileSync('./config/private.ini', 'utf-8'));
 
@@ -20,11 +24,11 @@ var spooler = getSpooler();
 spooler.poke();
 
 app.get('/poke', (req, res) => {
-  console.log('received poke')
-  spooler.poke();
-  res.status(200).send('0');
+	console.log('received poke')
+	spooler.poke();
+	res.status(200).send('0');
 });
 
-app.listen(PRIVATE_CONFIG.spooler.port, function () {
-  console.log('spooler server listening on port ' + PRIVATE_CONFIG.spooler.port);
+app.listen(PRIVATE_CONFIG.spooler.port, function() {
+	console.log('spooler server listening on port ' + PRIVATE_CONFIG.spooler.port);
 });

@@ -14,12 +14,14 @@ const PRIVATE_CONFIG = ini.parse(fs.readFileSync('./config/private.ini', 'utf-8'
 db.init(PRIVATE_CONFIG.database);
 
 let req = {
-	body : PRIVATE_CONFIG.test_email,
-	privateConfig : PRIVATE_CONFIG,
+	body: PRIVATE_CONFIG.test_email,
+	privateConfig: PRIVATE_CONFIG,
 };
 
 let res = {
-	send: (s) => {console.log(s)}
+	send: (s) => {
+		console.log(s)
+	}
 };
 
 postProcessor(req, res);

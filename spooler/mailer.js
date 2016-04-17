@@ -1,6 +1,8 @@
 import nodemailer from 'nodemailer';
 import fs from 'fs';
-import { signer } from 'nodemailer-dkim';
+import {
+	signer
+} from 'nodemailer-dkim';
 
 import mailerConstants from './mailer-constants';
 
@@ -8,31 +10,31 @@ var transporter;
 
 const init = function(dkimConfig) {
 
-  transporter = nodemailer.createTransport(mailerConstants.SMTP_CONFIG);
+	transporter = nodemailer.createTransport(mailerConstants.SMTP_CONFIG);
 
-  let dkimOptions = {
-    domainName : dkimConfig.domainName,
-    keySelector : dkimConfig.keySelector,
-    privateKey : fs.readFileSync(dkimConfig.privateKeyFile, 'utf-8')
-  };
+	let dkimOptions = {
+		domainName: dkimConfig.domainName,
+		keySelector: dkimConfig.keySelector,
+		privateKey: fs.readFileSync(dkimConfig.privateKeyFile, 'utf-8')
+	};
 
-  transporter.use('stream', signer(dkimOptions))
+	transporter.use('stream', signer(dkimOptions))
 
-  transporter.verify(function(err, success) {
-     if (err) {
-      console.log("mailer init failed: " + err)
-     } else {
-      console.log("mailer ready to receive mails");
-     }
-  });
+	transporter.verify(function(err, success) {
+		if (err) {
+			console.log("mailer init failed: " + err)
+		} else {
+			console.log("mailer ready to receive mails");
+		}
+	});
 };
 
 const sendMail = function(rowData, domain) {
 	return new Promise((resolve, reject) => {
 		let mailData = {
-			envelope : {
-				from : 'donotreply@'+ domain,
-				to : rowData.rcptTo
+			envelope: {
+				from: 'donotreply@' + domain,
+				to: rowData.rcptTo
 			}
 		};
 		for (let p in rowData) {
@@ -61,6 +63,6 @@ const sendMail = function(rowData, domain) {
 };
 
 export default {
-  init,
-  sendMail
+	init,
+	sendMail
 }
