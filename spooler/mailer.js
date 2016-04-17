@@ -1,8 +1,6 @@
 import nodemailer from 'nodemailer';
 import fs from 'fs';
-import {
-	signer
-} from 'nodemailer-dkim';
+import { signer } from 'nodemailer-dkim';
 
 import mailerConstants from './mailer-constants';
 

@@ -1,6 +1,5 @@
 #!/usr/bin/env node
  //  enable runtime transpilation to use ES6/7 in node
-
 var fs = require('fs');
 console.log("starting....");
 var babelrc = fs.readFileSync('./.babelrc');

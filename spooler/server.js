@@ -2,13 +2,9 @@ import fs from 'fs';
 import express from 'express';
 import ini from 'ini';
 
-import {
-	init as dbInit
-} from '../db/init';
+import { init as dbInit } from '../db/init';
 import getSpooler from './spooler';
-import {
-	init as mailerInit
-} from './mailer';
+import { init as mailerInit } from './mailer';
 
 const PRIVATE_CONFIG = ini.parse(fs.readFileSync('./config/private.ini', 'utf-8'));
 

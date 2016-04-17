@@ -1,8 +1,6 @@
 import db from '../db/init';
 import mailer from './mailer';
-import {
-	ERRORS as mailerErrors
-} from './mailer-constants';
+import { ERRORS as mailerErrors } from './mailer-constants';
 
 var spooler;
 
@@ -19,21 +17,21 @@ function EmailSpooler() {
 		return new Promise((resolve, reject) => {
 			console.log('inside promise')
 			db.queryDB('SELECT * FROM emails_pending limit 1')
-				.then((resultObject) => {
-					// ✔ query executed successfully
-					if (resultObject.results.length == 1) {
-						console.log('found a row to process')
-						console.log(resultObject.results[0])
-						resolve(resultObject.results[0]);
-					} else {
-						console.log('no data')
-						reject(mailerErrors.NO_WORK_TO_DO);
-					}
-				}, () => {
-					// ✘  DB failure
-					console.log('db failure')
-					reject(mailerErrors.FAILURE_TO_RETRIEVE_WORK);
-				});
+			.then((resultObject) => {
+				// ✔ query executed successfully
+				if (resultObject.results.length == 1) {
+					console.log('found a row to process')
+					console.log(resultObject.results[0])
+					resolve(resultObject.results[0]);
+				} else {
+					console.log('no data')
+					reject(mailerErrors.NO_WORK_TO_DO);
+				}
+			}, () => {
+				// ✘  DB failure
+				console.log('db failure')
+				reject(mailerErrors.FAILURE_TO_RETRIEVE_WORK);
+			});
 		});
 	};
 
