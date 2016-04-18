@@ -15,7 +15,7 @@ dbInit(PRIVATE_CONFIG.database);
 
 // init mailer
 mailerInit(PRIVATE_CONFIG.DKIM).then(() => {
-	spooler = getSpooler();
+	spooler = getSpooler(PRIVATE_CONFIG.server.domain);
 	// on startup, check for any messages in the db from last time
 	spooler.poke();
 }, (err) => {
@@ -24,8 +24,8 @@ mailerInit(PRIVATE_CONFIG.DKIM).then(() => {
 	var app = express();
 	app.get('/poke', (req, res) => {
 		console.log('received poke')
-		spooler.poke();
 		res.status(200).send('0');
+		spooler.poke();
 	});
 
 	app.listen(PRIVATE_CONFIG.spooler.port, function() {

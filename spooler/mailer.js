@@ -16,7 +16,7 @@ export function init(dkimConfig) {
 			privateKey: fs.readFileSync(dkimConfig.privateKeyFile, 'utf-8')
 		};
 
-		transporter.use('stream', signer(dkimOptions))
+	//	transporter.use('stream', signer(dkimOptions))
 
 		transporter.verify(function(err, success) {
 			if (err) {

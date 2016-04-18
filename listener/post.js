@@ -21,6 +21,7 @@ export default function(req, res) {
 		return db.writeEmailToDatabase(emailData);
 	}).then(() => {
 		// ✔
+		res.send(postConstants.RESPONSES.OK);
 		request('http://localhost:' + req.privateConfig.spooler.port + '/poke', function(error, response, body) {
 			if (!error && response.statusCode == 200) {
 				console.log('?' + body)
@@ -28,7 +29,6 @@ export default function(req, res) {
 				console.log('??' + error + "??" + response + '???' + body);
 			}
 		});
-		res.send(postConstants.RESPONSES.OK);
 	}, (rejectObject) => {
 		// ✘
 		respondFailure(rejectObject, req, res); // either the error from the validations, or from the db save

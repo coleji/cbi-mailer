@@ -4,7 +4,7 @@ import { ERRORS as mailerErrors } from './mailer-constants';
 
 var spooler;
 
-function EmailSpooler() {
+function EmailSpooler(domain) {
 	console.log('constructing spooler');
 
 	// true when doing stuff, false when waiting.  NOOP any poke that happens when active
@@ -15,7 +15,7 @@ function EmailSpooler() {
 	// Check db for any messages to send.
 	// Return resovled promise with message data, rejected promise if no work to do (or db failure).
 	function getMessageToSend() {
-		console.log('running getMessageToSend()')
+		console.log('running getMessageToSend()!')
 		return new Promise((resolve, reject) => {
 			queryDB('SELECT * FROM emails_pending limit 1')
 			.then((resultObject) => {
@@ -70,14 +70,16 @@ function EmailSpooler() {
 			console.log('found an email to send')
 			if (panicHalt) return Promise.reject({code: mailerErrors.RESPONDING_TO_HALT})
 
-			return sendMail(rowData);
+			return sendMail(rowData, domain);
 		}).then((trackingId) => {
 			// ✔ successfully sent
 			console.log('successfully sent')
 			return purgeEmailFromDatabase(trackingId);
 		}).then(() => {
 			// ✔ successfully purged from db
-			console.log('successfully purged form db')
+			console.log('successfully purged form db');
+			// go fish for another one
+			return spool();
 		}).catch((rejectObject) => {
 			console.log('spool() caught something')
 			// ✘ one of the above three failed
@@ -118,14 +120,16 @@ function EmailSpooler() {
 		if (!active) {
 			console.log('spooler was inactive, spinning up')
 			spool();
+		} else {
+			console.log('spooler was already spinning, NOOPing')
 		}
 	};
 };
 
 // EmailSpooler is a singleton class
-export default function() {
+export default function(domain) {
 	if (undefined == spooler) {
-		spooler = new EmailSpooler();
+		spooler = new EmailSpooler(domain);
 	}
 	return spooler;
 }

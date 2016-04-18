@@ -9,19 +9,30 @@ export function init(connectionCredentials) {
 }
 
 export function queryDB(...args) {
+	console.log('inside queryDB')
 	return (new Promise((resolve, reject) => {
 		if (!pool) reject("database connection pool was never initialized");
-		pool.getConnection((err, connection) => {
-			connection.query(...args, (err, results, fields) => {
-				if (err) {
-					reject(err);
-				} else {
-					resolve({
-						results,
-						fields
-					});
-				}
-			})
+		pool.getConnection((connectionErr, connection) => {
+			console.log('just called getConnection')
+			if (connectionErr) {
+				connection.release();
+				reject(connectionErr);
+			} else {
+				connection.query(...args, (queryErr, results, fields) => {
+					console.log('just called query')
+					if (queryErr) {
+						connection.release();
+						reject(queryErr);
+					} else {
+						connection.release();
+						resolve({
+							results,
+							fields
+						});
+					}
+				})
+			}
+
 		});
 	}));
 }

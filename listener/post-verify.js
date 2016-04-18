@@ -10,9 +10,11 @@ const verifyChecksum = function(body, salt) {
 	postConstants.REQUIRED_PARAMS.forEach(e => {
 		if (e != 'checksum') paramStrings.push(e + '=' + body[e]);
 	});
+	postConstants.OPTIONAL_PARAMS.forEach(e => {
+		if (body[e]) paramStrings.push(e + '=' + body[e]);
+	})
 	let checkMe = paramStrings.join('&');
 	let checksum = md5(salt + checkMe + salt).toUpperCase();
-	console.log('expected ' + checksum)
 	return (checksum == body.checksum);
 };
 
