@@ -29,8 +29,8 @@ postProcessor(req, res);
 var app = express();
 
 var httpsOptions = {
-  key: fs.readFileSync(PRIVATE_CONFIG.ssl.key_path),
-  cert: fs.readFileSync(PRIVATE_CONFIG.ssl.cert_path)
+  key: fs.readFileSync(PRIVATE_CONFIG.server.key_path),
+  cert: fs.readFileSync(PRIVATE_CONFIG.server.cert_path)
 };
 
 https.createServer(httpsOptions, app).listen(443, function () {
