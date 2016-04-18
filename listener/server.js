@@ -40,6 +40,11 @@ https.createServer(httpsOptions, app).listen(443, function () {
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
+app.use((req, res, next) => {
+  req.privateConfig = PRIVATE_CONFIG;
+  next();
+})
+
 app.post('/email', function(req, res) {
   postProcessor(req, res)
 });
