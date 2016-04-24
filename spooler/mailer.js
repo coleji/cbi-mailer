@@ -29,7 +29,8 @@ export function sendMail(rowData, domain) {
 				to: rowData.rcptTo
 			},
 			headers: {
-				'X-CBI-TrackingId' : rowData.trackingId
+				'X-CBI-TrackingId' : rowData.trackingId,
+				'X-CBI-Instance' : rowData.apexInstance
 			}
 		};
 		for (let p in rowData) {

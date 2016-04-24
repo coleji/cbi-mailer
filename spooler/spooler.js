@@ -104,7 +104,7 @@ function EmailSpooler(config) {
 		active = true;
 		getMessageToSend().then((rowData) => {
 			// ✔ found an email to send
-			log.info('found an email to send')
+			log.info('*******   found an email to send: ' + rowData.trackingId)
 			if (panicHalt) return Promise.reject({code: mailerErrors.RESPONDING_TO_HALT})
 
 			return sendMail(rowData, config.server.domain);

@@ -11,6 +11,7 @@ export const DB_PARAM_TO_NODEMAILER_PARAM = {
 
 export const DB_FIELDS_TO_IGNORE = {
 	'trackingId': true,
+	'apexInstance': true,
 	'checksum': true,
 	'rcptTo': true
 }

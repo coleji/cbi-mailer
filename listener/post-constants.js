@@ -1,5 +1,6 @@
 const REQUIRED_PARAMS = [
 	'trackingId',
+	'apexInstance',
 	'rcptTo',
 	'toAddr',
 	'fromAddr',

@@ -24,6 +24,7 @@ DROP TABLE IF EXISTS `emails_pending`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `emails_pending` (
   `trackingId` int(11) NOT NULL,
+  `apexInstance` varchar(20) NOT NULL,
   `toAddr` varchar(4000) DEFAULT NULL,
   `rcptTo` varchar(4000) DEFAULT NULL,
   `fromAddr` varchar(200) DEFAULT NULL,
@@ -35,7 +36,7 @@ CREATE TABLE `emails_pending` (
   `miscHeaders` varchar(4000) DEFAULT NULL,
   `ccAddr` varchar(4000) DEFAULT NULL,
   `bccAddr` varchar(4000) DEFAULT NULL,
-  PRIMARY KEY (`trackingId`)
+  PRIMARY KEY (`trackingId`, `apexInstance`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -57,7 +58,8 @@ DROP TABLE IF EXISTS `emails_sent`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `emails_sent` (
   `trackingId` int(11) NOT NULL,
-  PRIMARY KEY (`trackingId`)
+  `apexInstance` varchar(20) NOT NULL,
+  PRIMARY KEY (`trackingId`, `apexInstance`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
