@@ -1,22 +1,13 @@
 import nodemailer from 'nodemailer';
 import fs from 'fs';
-import { signer } from 'nodemailer-dkim';
 
 import {SMTP_CONFIG, DB_FIELDS_TO_IGNORE, DB_PARAM_TO_NODEMAILER_PARAM, ERRORS} from './mailer-constants';
 
 var transporter;
 
-export function init(dkimConfig) {
+export function init() {
 	return new Promise((resolve, reject) => {
 		transporter = nodemailer.createTransport(SMTP_CONFIG);
-
-		let dkimOptions = {
-			domainName: dkimConfig.domainName,
-			keySelector: dkimConfig.keySelector,
-			privateKey: fs.readFileSync(dkimConfig.privateKeyFile, 'utf-8')
-		};
-
-	//	transporter.use('stream', signer(dkimOptions))
 
 		transporter.verify(function(err, success) {
 			if (err) {
@@ -35,6 +26,9 @@ export function sendMail(rowData, domain) {
 			envelope: {
 				from: 'donotreply@' + domain,
 				to: rowData.rcptTo
+			},
+			headers: {
+				'X-CBI-TrackingId' : rowData.trackingId
 			}
 		};
 		for (let p in rowData) {
