@@ -5,6 +5,7 @@ import request from 'request';
 import postConstants from './post-constants';
 import db from './db';
 import postVerify from './post-verify';
+import {log} from '../log/log';
 
 const respondFailure = function(rejectObject, req, res) {
 	if (!!rejectObject.responseCode && !!rejectObject.reason) {
@@ -24,9 +25,9 @@ export default function(req, res) {
 		res.send(postConstants.RESPONSES.OK);
 		request('http://localhost:' + req.privateConfig.spooler.port + '/poke', function(error, response, body) {
 			if (!error && response.statusCode == 200) {
-				console.log('?' + body)
+				log.info('?' + body)
 			} else {
-				console.log('??' + error + "??" + response + '???' + body);
+				log.info('??' + error + "??" + response + '???' + body);
 			}
 		});
 	}, (rejectObject) => {

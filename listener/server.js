@@ -6,26 +6,14 @@ import ini from 'ini';
 
 import postProcessor from './post';
 import {init as initDB} from '../db/init';
+import { init as logInit } from '../log/log';
 
 const PRIVATE_CONFIG = ini.parse(fs.readFileSync('./config/private.ini', 'utf-8'));
 
 // create connection pool
 initDB(PRIVATE_CONFIG.database);
+logInit(PRIVATE_CONFIG.log.listener_log);
 
-/*
-let req = {
-	body: PRIVATE_CONFIG.test_email,
-	privateConfig: PRIVATE_CONFIG,
-};
-
-let res = {
-	send: (s) => {
-		console.log(s)
-	}
-};
-
-postProcessor(req, res);
-*/
 var app = express();
 
 var httpsOptions = {

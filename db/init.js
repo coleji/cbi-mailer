@@ -4,22 +4,22 @@ var pool;
 
 // TODO: Do we really need a pool for a single thread?
 export function init(connectionCredentials) {
-	pool = mysql.createPool(connectionCredentials);
-	console.log('db initialized')
+	return new Promise((resolve, reject) => {
+		pool = mysql.createPool(connectionCredentials);
+		console.log('db initialized')
+		resolve();
+	});
 }
 
 export function queryDB(...args) {
-	console.log('inside queryDB')
 	return (new Promise((resolve, reject) => {
 		if (!pool) reject("database connection pool was never initialized");
 		pool.getConnection((connectionErr, connection) => {
-			console.log('just called getConnection')
 			if (connectionErr) {
 				connection.release();
 				reject(connectionErr);
 			} else {
 				connection.query(...args, (queryErr, results, fields) => {
-					console.log('just called query')
 					if (queryErr) {
 						connection.release();
 						reject(queryErr);
@@ -32,7 +32,6 @@ export function queryDB(...args) {
 					}
 				})
 			}
-
 		});
 	}));
 }

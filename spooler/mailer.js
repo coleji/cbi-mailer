@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer';
 import fs from 'fs';
 
 import {SMTP_CONFIG, DB_FIELDS_TO_IGNORE, DB_PARAM_TO_NODEMAILER_PARAM, ERRORS} from './mailer-constants';
+import {log} from '../log/log';
 
 var transporter;
 
@@ -39,20 +40,20 @@ export function sendMail(rowData, domain) {
 			} else if (p == 'miscHeaders') {
 				// add the headers
 			} else {
-				console.log('couldnt translate mail property ' + p);
+				log.info('couldnt translate mail property ' + p);
 				mailData[p] = rowData[p];
 			}
 		}
 
 		transporter.sendMail(mailData, (err, info) => {
 			if (err) {
-				console.log('send fail')
+				log.info('send fail')
 				reject({
 					code: ERRORS.FAILURE_TO_SEND,
 					reason: err
 				});
 			} else {
-				console.log('send success!')
+				log.info('send success!')
 				resolve(rowData.trackingId);
 			}
 		})

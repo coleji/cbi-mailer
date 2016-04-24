@@ -2,30 +2,36 @@ import {queryDB} from '../db/init';
 import postConstants from './post-constants';
 
 const checkDoesntExist = function(trackingId) {
-	const checks = [
-		// For now there's only one table to check.  Will be adding more
-		new Promise((resolve, reject) => {
-			queryDB('SELECT 1 FROM emails_pending WHERE trackingId = ? ', trackingId)
-			.then((resultObject) => {
-				// ✔
-				if (resultObject.results.length == 0) {
-					resolve();
-				} else {
-					reject({
-						reason: "trackingid exists in emailsPending",
-						responseCode: postConstants.RESPONSES.DUPLICATE
-					});
-				}
-			}, (err) => {
-				// ✘
+	return new Promise((resolve, reject) => {
+		queryDB('SELECT 1 FROM emails_pending WHERE trackingId = ? ', trackingId)
+		.then((resultObject) => {
+			// ✔
+			if (resultObject.results.length == 0) {
+				return queryDB('SELECT 1 FROM emails_sent WHERE trackingId = ? ', trackingId);
+			} else {
 				reject({
-					reason: "db internal error: " + err,
-					responseCode: postConstants.RESPONSES.DB_FAILURE
+					reason: "trackingid exists in emailsPending",
+					responseCode: postConstants.RESPONSES.DUPLICATE
 				});
+			}
+		}).then((resultObject) => {
+			// ✔
+			if (resultObject.results.length == 0) {
+				resolve();
+			} else {
+				reject({
+					reason: "trackingid exists in emailsSent",
+					responseCode: postConstants.RESPONSES.DUPLICATE
+				});
+			}
+		}).catch((err) => {
+			// ✘
+			reject({
+				reason: "db internal error: " + err,
+				responseCode: postConstants.RESPONSES.DB_FAILURE
 			});
-		})
-	];
-	return Promise.all(checks);
+		});
+	})
 };
 
 const writeEmailToDatabase = function(emailData) {
